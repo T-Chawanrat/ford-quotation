@@ -8,7 +8,7 @@ const VisitCounter = () => {
         const fetchVisitData = async () => {
             try {
                 // ดึงจำนวนผู้เข้าชม
-                const response = await axios.get('https://fordvisit.vercel.app/visit-count');
+                const response = await axios.get('https://ford-count.onrender.com/visit-count');
                 setVisitCount(response.data.count);
             } catch (error) {
                 console.error('Error fetching visit count:', error);
@@ -16,7 +16,7 @@ const VisitCounter = () => {
 
             try {
                 // เพิ่มจำนวนผู้เข้าชม
-                await axios.get('https://fordvisit.vercel.app/visit');
+                await axios.get('https://ford-count.onrender.com/visit');
             } catch (error) {
                 console.error('Error incrementing visit count:', error);
             }
