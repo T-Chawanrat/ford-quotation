@@ -1,13 +1,4 @@
-import React from "react";
-
-const PdfView = ({
-  carData,
-  todos,
-  totalPayment,
-  installment,
-  interestRates,
-  financedAmount,
-}) => {
+const PdfView = ({ carData, todos, totalPayment, installment, interestRates, financedAmount }) => {
   return (
     <div id="pdf-view" className="w-[210mm] h-[500mm] mx-auto">
       {/* Header */}
@@ -15,14 +6,10 @@ const PdfView = ({
         <div>
           <h1 className="text-2xl font-bold">{carData.showroomName}</h1>
           <p className="text-sm text-white">
-            {carData.consultantName}   {carData.consultantTel}
+            {carData.consultantName} {carData.consultantTel}
           </p>
         </div>
-        <img
-          className="h-16"
-          src="https://i.postimg.cc/wjY11wn7/Ford.png"
-          alt="Ford Logo"
-        />
+        <img className="h-16" src="https://i.postimg.cc/wjY11wn7/Ford.png" alt="Ford Logo" />
       </div>
 
       {/* Title */}
@@ -56,16 +43,11 @@ const PdfView = ({
           <p>เกียร์: {carData?.gearbox}</p>
           <p>เครื่องยนต์: {carData?.engineSize}</p>
           <p>ค่าสี: {carData?.colorPremium?.toLocaleString()} บาท</p>
-          <p className="text-red-600">
-            ส่วนลดตัวรถ: {carData?.discount?.toLocaleString()} บาท
-          </p>
+          <p className="text-red-600">ส่วนลดตัวรถ: {carData?.discount?.toLocaleString()} บาท</p>
           <p>
             เงินดาวน์:{" "}
             {carData?.downPaymentType === "%"
-              ? `${carData?.downPayment}% = ${(
-                  carData?.price *
-                  (carData?.downPayment / 100)
-                ).toLocaleString()} บาท`
+              ? `${carData?.downPayment}% = ${(carData?.price * (carData?.downPayment / 100)).toLocaleString()} บาท`
               : `${carData?.downPayment?.toLocaleString()} บาท`}
           </p>
           <p>ยอดจัด: {financedAmount?.toLocaleString()} บาท</p>
@@ -88,9 +70,7 @@ const PdfView = ({
               <tr key={month}>
                 <td className="px-4 py-2 border text-center">{month}</td>
                 <td className="px-4 py-2 border text-center">
-                  {installment[month]
-                    ? `${installment[month].toLocaleString()} บาท`
-                    : "-"}
+                  {installment[month] ? `${installment[month].toLocaleString()} บาท` : "-"}
                 </td>
                 <td className="px-4 py-2 border text-center">
                   {interestRates[month] ? `${interestRates[month]}%` : "-"}
@@ -123,46 +103,35 @@ const PdfView = ({
       {/* Summary */}
 
       <div className="mt-10 px-8">
-        <h2 className="text-lg font-semibold underline mx-10">
-          สรุปค่าใช้จ่าย
-        </h2>
+        <h2 className="text-lg font-semibold underline mx-10">สรุปค่าใช้จ่าย</h2>
         <p className="flex justify-between mx-10">
           เงินดาวน์:{" "}
           <span>
             {carData?.downPaymentType === "%"
-              ? `${carData?.downPayment}% = ${(
-                  carData?.price *
-                  (carData?.downPayment / 100)
-                ).toLocaleString()} บาท`
+              ? `${carData?.downPayment}% = ${(carData?.price * (carData?.downPayment / 100)).toLocaleString()} บาท`
               : `${carData?.downPayment?.toLocaleString()} บาท`}
           </span>
         </p>
         <p className="text-red-600 flex justify-between mx-10">
-          ส่วนลดเงินดาวน์:{" "}
-          <span>{carData?.downDiscount?.toLocaleString()} บาท</span>
+          ส่วนลดเงินดาวน์: <span>{carData?.downDiscount?.toLocaleString()} บาท</span>
         </p>
         <p className="flex justify-between mx-10">
           Vat: <span>{carData?.vat?.toLocaleString()} บาท</span>
         </p>
         <p className="flex justify-between mx-10">
-          ค่าจดทะเบียน:{" "}
-          <span>{carData?.registrationFee?.toLocaleString()} บาท</span>
+          ค่าจดทะเบียน: <span>{carData?.registrationFee?.toLocaleString()} บาท</span>
         </p>
         <p className="flex justify-between mx-10">
-          ค่ามัดจำป้ายแดง:{" "}
-          <span>{carData?.plateDeposit?.toLocaleString()} บาท</span>
+          ค่ามัดจำป้ายแดง: <span>{carData?.plateDeposit?.toLocaleString()} บาท</span>
         </p>
         <p className="flex justify-between mx-10">
-          ค่างวดล่วงหน้า:{" "}
-          <span>{carData?.prepaidInstallment?.toLocaleString()} บาท</span>
+          ค่างวดล่วงหน้า: <span>{carData?.prepaidInstallment?.toLocaleString()} บาท</span>
         </p>
         <p className="flex justify-between mx-10">
-          ค่าใช้จ่ายอื่นๆ:{" "}
-          <span>{carData?.otherExpenses?.toLocaleString()} บาท</span>
+          ค่าใช้จ่ายอื่นๆ: <span>{carData?.otherExpenses?.toLocaleString()} บาท</span>
         </p>
         <p className="text-red-600 flex justify-between mx-10">
-          - เงินจอง:{" "}
-          <span>{carData?.reservationFee?.toLocaleString()} บาท</span>
+          - เงินจอง: <span>{carData?.reservationFee?.toLocaleString()} บาท</span>
         </p>
         <p className="text-lg font-medium mt-3 text-right mx-10 p-8  ">
           รวมยอดชำระ: <span>{totalPayment?.toLocaleString()} บาท</span>

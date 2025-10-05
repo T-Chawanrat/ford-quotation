@@ -1,4 +1,3 @@
-import React from "react";
 import CarTable from "./components/CarTable";
 
 const App = () => {

@@ -33,6 +33,8 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+      // ปิดการเตือน prop-types
+      'react/prop-types': 'off',
     },
   },
 ]
