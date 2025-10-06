@@ -295,7 +295,9 @@ const CarTable = () => {
   const calculatePrice = () => {
     const car = carModels.find((c) => c.model === selectedCarModel);
     if (car) {
-      setPrice(car.price + Number(colorPremium) - Number(discount)); //
+      const calculatedPrice =
+        car.price + Number(colorPremium) - Number(discount);
+      setPrice(Math.max(calculatedPrice, 0)); // ถ้าผลลัพธ์ < 0 จะเป็น 0
     }
   };
 
@@ -348,26 +350,37 @@ const CarTable = () => {
   };
 
   const handleDiscount = (event) => {
-    let value = Number(event.target.value); // แปลงค่าเป็นตัวเลข
+    let value = Number(event.target.value);
+
     if (value >= 0 && value <= Number(price)) {
-      setDiscount(value);
+      setDiscount(Math.min(value, 300000)); // จำกัดสูงสุด 500000
     } else {
-      setDiscount(Number(price)); // ใช้ Number(price) เพื่อให้เป็นตัวเลข
+      setDiscount(Math.min(Number(price), 300000));
     }
   };
 
   const calculateFinancedAmount = () => {
     if (!price) return 0;
-    return downPaymentType === "%" ? price - (price * parseFloat(downPayment)) / 100 : price - parseFloat(downPayment);
+    return downPaymentType === "%"
+      ? price - (price * parseFloat(downPayment)) / 100
+      : price - parseFloat(downPayment);
   };
 
   const financedAmount = calculateFinancedAmount();
 
-  const handleInterestRateChange = (event, month) => {
-    const value = event.target.value;
-    setInterestRates((prevState) => {
-      return { ...prevState, [month]: value };
-    });
+  const handleInterestRateChange = (e, month) => {
+    let value = parseFloat(e.target.value);
+
+    // ถ้าไม่ใช่ตัวเลขให้เป็น 0
+    if (isNaN(value)) value = 0;
+
+    // จำกัดค่ามากสุดไม่เกิน 20%
+    value = Math.min(value, 10);
+
+    setInterestRates((prev) => ({
+      ...prev,
+      [month]: value,
+    }));
   };
 
   const handleInstallmentCalculation = () => {
@@ -417,7 +430,10 @@ const CarTable = () => {
         ? price * (downPayment / 100) // คำนวณจากเปอร์เซ็นต์
         : downPayment; // คำนวณจากจำนวนเงิน
 
-    const validatedDownDiscount = Math.min(Number(downDiscount), Number(downPaymentAmount)); // แปลงเป็นตัวเลข
+    const validatedDownDiscount = Math.min(
+      Number(downDiscount),
+      Number(downPaymentAmount)
+    ); // แปลงเป็นตัวเลข
 
     const totalPayment =
       downPaymentAmount -
@@ -436,11 +452,19 @@ const CarTable = () => {
     <div id="quotation" className="max-w-4xl mx-auto bg-white">
       <div className="p-4 flex justify-between items-center bg-[#1a448d] flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold max-sm:text-2xl  text-white">Ford Quotation</h1>
-          <p className="text-sm max-sm:text-sm text-white">Developed for personal use.</p>
+          <h1 className="text-2xl font-bold max-sm:text-2xl  text-white">
+            Ford Quotation
+          </h1>
+          <p className="text-sm max-sm:text-sm text-white">
+            Developed for personal use.
+          </p>
         </div>
 
-        <img className="h-16 max-sm:h-8" src="https://img5.pic.in.th/file/secure-sv1/ffff83ef44457c5bd2.png" alt="" />
+        <img
+          className="h-16 max-sm:h-8"
+          src="https://img5.pic.in.th/file/secure-sv1/ffff83ef44457c5bd2.png"
+          alt=""
+        />
       </div>
 
       <div className="flex justify-between">
@@ -454,60 +478,89 @@ const CarTable = () => {
           }).format(new Date())}
         </div>
       </div>
+      <div className="flex justify-between -mt-4">
+        <div className="p-6 w-1/2 text-sm">
+          <input
+            type="text"
+            className={`w-full p-1 mb-1 rounded-md ${
+              name ? "input-filled" : "input-empty"
+            }`}
+            placeholder="ชื่อโชว์รูม"
+            value={showroomName}
+            onChange={(e) => setShowroomName(e.target.value)}
+          />
+          <input
+            type="text"
+            className={`w-full p-1 mb-1 rounded-md ${
+              name ? "input-filled" : "input-empty"
+            }`}
+            placeholder="ชื่อที่ปรึกษาการขาย"
+            value={consultantName}
+            onChange={(e) => setConsultantName(e.target.value)}
+          />
+          <input
+            type="tel"
+            className={`w-full p-1 mb-1 rounded-md ${
+              consultantTel ? "input-filled" : "input-empty"
+            }`}
+            placeholder="เบอร์โทรศัพท์ Sales"
+            value={consultantTel}
+            onChange={(e) => {
+              let value = e.target.value.replace(/\D/g, "");
+              if (value.length > 10) {
+                value = value.slice(0, 10);
+              }
 
-      <div className="p-6 mt-[-20px] w-1/2 text-sm">
-        <input
-          type="text"
-          className={`w-full p-1 mb-1 rounded-md ${name ? "input-filled" : "input-empty"}`}
-          placeholder="ชื่อโชว์รูม"
-          value={showroomName}
-          onChange={(e) => setShowroomName(e.target.value)}
-        />
-        <input
-          type="text"
-          className={`w-full p-1 mb-1 rounded-md ${name ? "input-filled" : "input-empty"}`}
-          placeholder="ชื่อที่ปรึกษาการขาย"
-          value={consultantName}
-          onChange={(e) => setConsultantName(e.target.value)}
-        />
-        <input
-          type="text"
-          className={`w-full p-1 mb-1 rounded-md ${name ? "input-filled" : "input-empty"}`}
-          placeholder="เบอร์โทรศัพท์"
-          value={consultantTel}
-          onChange={(e) => setConsultantTel(e.target.value)}
-        />
-      </div>
+              setConsultantTel(value);
+            }}
+          />
+        </div>
 
-      <div className="p-6 mt-[-2rem] w-full text-sm">
-        <input
-          type="text"
-          className={`w-full p-1 mb-1 rounded-md ${name ? "input-filled" : "input-empty"}`}
-          placeholder="ชื่อ-นามสกุล ลูกค้า"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          className={`w-full p-1 mb-1 rounded-md ${address ? "input-filled" : "input-empty"}`}
-          placeholder="ที่อยู่ลูกค้า"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
-        <input
-          type="text"
-          className={`w-full p-1 mb-1 rounded-md ${tel ? "input-filled" : "input-empty"}`}
-          placeholder="เบอร์โทรศัพท์"
-          value={tel}
-          onChange={(e) => setTel(e.target.value)}
-        />
+        <div className="p-6  w-1/2 text-sm">
+          <input
+            type="text"
+            className={`w-full p-1 mb-1 rounded-md ${
+              name ? "input-filled" : "input-empty"
+            }`}
+            placeholder="ชื่อ-นามสกุล ลูกค้า"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            type="text"
+            className={`w-full p-1 mb-1 rounded-md ${
+              address ? "input-filled" : "input-empty"
+            }`}
+            placeholder="ที่อยู่ลูกค้า"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+          <input
+            type="tel"
+            className={`w-full p-1 mb-1 rounded-md ${
+              tel ? "input-filled" : "input-empty"
+            }`}
+            placeholder="เบอร์โทรศัพท์ลูกค้า"
+            value={tel}
+            onChange={(e) => {
+              let value = e.target.value.replace(/\D/g, "");
+              if (value.length > 10) {
+                value = value.slice(0, 10);
+              }
+
+              setTel(value);
+            }}
+          />
+        </div>
       </div>
 
       <div>
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <tbody>
             <tr>
-              <td className="p-2 w-1/4 border bg-blue-900 text-white font-medium">รุ่นรถ</td>
+              <td className="p-2 w-1/4 border bg-blue-900 text-white font-medium">
+                รุ่นรถ
+              </td>
               <td className="p-2 border">
                 <select
                   className="w-full border border-gray-300 rounded-md"
@@ -529,14 +582,20 @@ const CarTable = () => {
         <table className="w-full border-collapse border border-gray-300 text-sm table-layout-fixed">
           <tbody>
             <tr className="w-full">
-              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">เกียร์</td>
+              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">
+                เกียร์
+              </td>
               <td className="p-2 border text-center w-1/4">{gearbox}</td>
-              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">เครื่องยนต์</td>
+              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">
+                เครื่องยนต์
+              </td>
               <td className="p-2 border text-center w-1/4">{engineSize}</td>
             </tr>
 
             <tr>
-              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">ค่าสี</td>
+              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">
+                ค่าสี
+              </td>
               <td className="p-2 border text-center w-1/4">
                 <input
                   className={`w-full p-1 h-6 border border-gray-300 rounded-md ${
@@ -547,7 +606,9 @@ const CarTable = () => {
                   type="number"
                 />
               </td>
-              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">ส่วนลด</td>
+              <td className="p-2 border bg-blue-900 text-white font-medium w-1/4">
+                ส่วนลด
+              </td>
               <td className="p-1 border text-center w-1/4">
                 <input
                   className={`w-full h-6 border border-gray-300 rounded-md text-red-600 ${
@@ -568,7 +629,9 @@ const CarTable = () => {
         <table className="w-full border-collapse  border-gray-300 text-sm">
           <tbody>
             <tr>
-              <td className="p-2 w-1/4 border bg-blue-900 font-medium text-white whitespace-nowrap">เงินดาวน์</td>
+              <td className="p-2 w-1/4 border bg-blue-900 font-medium text-white whitespace-nowrap">
+                เงินดาวน์
+              </td>
               <td className="p-2 space-x-2">
                 <input
                   type="number"
@@ -603,15 +666,22 @@ const CarTable = () => {
         <table className="w-full border-collapse text-sm">
           <tbody>
             <tr>
-              <td className="p-2 w-1/4 border bg-blue-900 font-medium text-white whitespace-nowrap">ราคา</td>
+              <td className="p-2 w-1/4 border bg-blue-900 font-medium text-white whitespace-nowrap">
+                ราคา
+              </td>
               <td className="p-2 w-1/4 border text-sm sm:text-xl font-semibold whitespace-nowrap">
                 {price ? price.toLocaleString() : ""}
               </td>
-              <td className="p-2 w-1/4 border bg-blue-900 font-medium text-white whitespace-nowrap">ยอดจัด</td>
+              <td className="p-2 w-1/4 border bg-blue-900 font-medium text-white whitespace-nowrap">
+                ยอดจัด
+              </td>
               <td className="p-2 w-1/4 border text-sm sm:text-l font-medium  whitespace-nowrap">
                 {price
                   ? downPaymentType === "%"
-                    ? (price - (price * parseFloat(downPayment)) / 100).toLocaleString()
+                    ? (
+                        price -
+                        (price * parseFloat(downPayment)) / 100
+                      ).toLocaleString()
                     : (price - parseFloat(downPayment)).toLocaleString()
                   : ""}
               </td>
@@ -634,7 +704,9 @@ const CarTable = () => {
               <tr key={month}>
                 <td className="px-4 py-2 border text-center">{month}</td>
                 <td className="px-4 py-2 border text-center">
-                  {installment[month] ? `${installment[month].toLocaleString()}` : "-"}
+                  {installment[month]
+                    ? `${installment[month].toLocaleString()}`
+                    : "-"}
                 </td>
                 <td className="w-1/4 px-4 py-2 border text-right">
                   <input
@@ -663,7 +735,10 @@ const CarTable = () => {
           {todos.map((todo, index) => (
             <li key={index} className="flex justify-between items-center  py-1">
               {todo}
-              <button className="text-red-600" onClick={() => deleteTodo(index)}>
+              <button
+                className="text-red-600"
+                onClick={() => deleteTodo(index)}
+              >
                 X
               </button>
             </li>
@@ -688,13 +763,20 @@ const CarTable = () => {
 
         {/* Input Box */}
         <div className="mt-4 mb-2 text-sm">
-          <input
-            className="w-full border border-gray-300 rounded-md px-2 py-1"
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="เพิ่มรายการของแถม..."
-          />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addTodo();
+            }}
+          >
+            <input
+              className="w-full border border-gray-300 rounded-md px-2 py-1"
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="เพิ่มรายการของแถม..."
+            />
+          </form>
         </div>
 
         {/* Add Button */}
@@ -719,7 +801,9 @@ const CarTable = () => {
               </td>
             </tr>
             <tr>
-              <td className="p-2 border bg-blue-900 text-white">ส่วนลดเงินดาวน์</td>
+              <td className="p-2 border bg-blue-900 text-white">
+                ส่วนลดเงินดาวน์
+              </td>
               <td className="p-2 border text-right">
                 <input
                   type="number"
@@ -750,55 +834,83 @@ const CarTable = () => {
                   type="number"
                   min={0}
                   value={vat}
-                  onChange={(e) => setVat(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    let value = parseFloat(e.target.value) || 0;
+                    value = Math.min(value, 100000); // จำกัดไม่เกิน 100000
+                    setVat(value);
+                  }}
                   className="w-full  border border-gray-300 rounded-md text-right"
                 />
               </td>
             </tr>
             <tr>
-              <td className="p-2 border bg-blue-900 text-white">ค่าจดทะเบียน</td>
+              <td className="p-2 border bg-blue-900 text-white">
+                ค่าจดทะเบียน
+              </td>
               <td className="p-2 border text-right">
                 <input
                   type="number"
                   min={0}
                   value={registrationFee}
-                  onChange={(e) => setRegistrationFee(parseFloat(e.target.value) || 0)}
-                  className="w-full  border border-gray-300 rounded-md text-right"
+                  onChange={(e) => {
+                    let value = parseFloat(e.target.value) || 0;
+                    value = Math.min(value, 20000); // จำกัดไม่เกิน 20000
+                    setRegistrationFee(value);
+                  }}
+                  className="w-full border border-gray-300 rounded-md text-right"
                 />
               </td>
             </tr>
             <tr>
-              <td className="p-2 border bg-blue-900 text-white">มัดจำป้ายแดง</td>
+              <td className="p-2 border bg-blue-900 text-white">
+                มัดจำป้ายแดง
+              </td>
               <td className="p-2 border text-right">
                 <input
                   type="number"
                   min={0}
                   value={plateDeposit}
-                  onChange={(e) => setPlateDeposit(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    let value = parseFloat(e.target.value) || 0;
+                    value = Math.min(value, 20000); // จำกัดไม่เกิน 20000
+                    setPlateDeposit(value);
+                  }}
                   className="w-full border border-gray-300 rounded-md text-right"
                 />
               </td>
             </tr>
             <tr>
-              <td className="p-2 border bg-blue-900 text-white">ค่างวดล่วงหน้า</td>
+              <td className="p-2 border bg-blue-900 text-white">
+                ค่างวดล่วงหน้า
+              </td>
               <td className="p-2 border text-right">
                 <input
                   type="number"
                   min={0}
                   value={prepaidInstallment}
-                  onChange={(e) => setPrepaidInstallment(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    let value = parseFloat(e.target.value) || 0;
+                    value = Math.min(value, 100000); // จำกัดไม่เกิน 100000
+                    setPrepaidInstallment(value);
+                  }}
                   className="w-full border border-gray-300 rounded-md text-right"
                 />
               </td>
             </tr>
             <tr>
-              <td className="p-2 border bg-blue-900 text-white">ค่าใช้จ่ายอื่นๆ</td>
+              <td className="p-2 border bg-blue-900 text-white">
+                ค่าใช้จ่ายอื่นๆ
+              </td>
               <td className="p-2 border text-right">
                 <input
                   type="number"
                   min={0}
                   value={otherExpenses}
-                  onChange={(e) => setOtherExpenses(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    let value = parseFloat(e.target.value) || 0;
+                    value = Math.min(value, 100000); // จำกัดไม่เกิน 100000
+                    setOtherExpenses(value);
+                  }}
                   className="w-full border border-gray-300 rounded-md text-right"
                 />
               </td>
@@ -810,7 +922,11 @@ const CarTable = () => {
                   type="number"
                   min={0}
                   value={reservationFee}
-                  onChange={(e) => setReservationFee(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    let value = parseFloat(e.target.value) || 0;
+                    value = Math.min(value, 30000); // จำกัดไม่เกิน 100000
+                    setReservationFee(value);
+                  }}
                   className="w-full  border border-gray-300 rounded-md text-right"
                 />
               </td>
@@ -826,10 +942,15 @@ const CarTable = () => {
       </div>
       <VisitCounter />
       <div className="text-center mt-4">
-        <button onClick={generatePdf} className="px-4 py-2 bg-blue-900 text-white rounded-md text-sm">
+        <button
+          onClick={generatePdf}
+          className="px-4 py-2 bg-blue-900 text-white rounded-md text-sm"
+        >
           ดาวน์โหลด PDF
         </button>
-        {errorMessage && <p className="text-red-500 mt-2 text-sm">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="text-red-500 mt-2 text-sm">{errorMessage}</p>
+        )}
       </div>
 
       <div className="text-center mt-4 p-6 animate-bounce text-gray-600 text-sm">

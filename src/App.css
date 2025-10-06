@@ -4,11 +4,11 @@
   box-sizing: border-box;
 }
 
-#pdf-view {
+/* #pdf-view {
   position: absolute;
   
   left: -9999px; 
-}
+} */
 
 @media (max-width: 768px) {
   .container {
